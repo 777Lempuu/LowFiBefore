@@ -1,288 +1,206 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Seal University Grievance Portal</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; color: #111; margin: 0; padding: 0; }
-    header { background: #000; color: #fff; padding: 10px; }
-    header nav { display: flex; justify-content: center; gap: 20px; }
-    header nav a { color: #fff; text-decoration: none; font-weight: bold; }
+    body { font-family: Arial, sans-serif; background: #f5f5f5; color: #222; text-align: center; }
+    .container { width: 80%; margin: auto; padding: 20px; }
     .hidden { display: none; }
-    .box { border: 1px solid #000; padding: 15px; margin: 15px auto; max-width: 700px; background: #fff; }
-    .btn { padding: 8px 15px; margin: 5px; cursor: pointer; border: 1px solid #000; background: #ddd; }
-    .big-btn { font-size: 28px; font-weight: bold; width: 60px; height: 60px; text-align: center; }
-    .progress { display: flex; justify-content: space-between; margin-top: 10px; }
-    .step { flex: 1; text-align: center; border-top: 2px solid #aaa; padding-top: 5px; font-size: 12px; }
-    .active { border-top: 2px solid #000; font-weight: bold; }
-    textarea, input, select { width: 100%; margin: 5px 0; padding: 5px; }
-    .expired { color: red; font-weight: bold; }
-    .filter-box { margin: 10px 0; }
-    footer { text-align: center; margin: 20px; font-size: 14px; }
+    button { margin: 10px; padding: 10px 20px; background: black; color: white; border: none; cursor: pointer; }
+    button:hover { background: #444; }
+    .complaint { border: 1px solid #aaa; padding: 10px; margin: 10px 0; background: #fff; text-align: left; }
+    .progress { margin: 5px; font-size: 14px; }
+    nav { margin-bottom: 20px; }
+    nav button { background: #222; }
+    select, input, textarea { padding: 6px; margin: 4px; }
   </style>
 </head>
 <body>
 
-<header>
-  <h1 style="text-align:center;">Seal University Grievance Redressal Portal</h1>
-  <nav>
-    <a href="#">Home</a>
-    <a href="#" onclick="showSupport()">Support</a>
-    <a href="#" onclick="showContact()">Contact</a>
-    <a href="#" onclick="showHelp()">Help</a>
-  </nav>
-</header>
+  <div class="container">
+    <h1>Seal University Grievance Portal</h1>
+    
+    <!-- NAVIGATION -->
+    <nav>
+      <button onclick="showPage('loginPage')">Home</button>
+      <button onclick="showPage('dashboard')">Dashboard</button>
+      <button onclick="showPage('supportPage')">Support</button>
+      <button onclick="logout()">Logout</button>
+    </nav>
 
-<!-- LOGIN PAGE -->
-<div id="loginPage" class="box">
-  <p><em>"All issues reported on this portal are recorded anonymously and we will work to the best of our ability to make quick work of this."</em></p>
-  
-  <h3>Login</h3>
-  <input type="text" id="loginName" placeholder="Enter Name"><br>
-  <input type="password" id="loginPass" placeholder="Enter Password"><br>
-  <input type="email" id="loginEmail" placeholder="Enter Email (for confirmation)">
-  <br><br>
-  <button class="btn" onclick="login(false)">Login as User</button>
-  <button class="btn" onclick="login(true)">Login as Admin</button>
-</div>
+    <!-- LOGIN PAGE -->
+    <div id="loginPage">
+      <h2>Welcome</h2>
+      <p>All issues reported here are <b>anonymous</b>. We will work to resolve them quickly.</p>
+      <input id="username" placeholder="Enter Name"><br><br>
+      <input id="password" type="password" placeholder="Enter Password"><br><br>
+      <button onclick="login(false)">Login as User</button>
+      <button onclick="login(true)">Login as Admin</button>
+    </div>
 
-<!-- USER DASHBOARD -->
-<div id="userPage" class="hidden box">
-  <h2>User Dashboard</h2>
-  <div>
-    <button class="big-btn" onclick="newComplaint()">+</button>
-    <button class="big-btn" onclick="removeComplaint()">-</button>
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="hidden">
+      <h2>User Dashboard</h2>
+      <button onclick="addComplaintForm()">+ Add Complaint</button>
+      <button onclick="removeComplaint()">- Remove Complaint</button>
+      
+      <!-- Category filter -->
+      <h3>Filter Complaints</h3>
+      <select id="filterCategory" onchange="renderComplaints()">
+        <option value="all">All Categories</option>
+        <option>Academic</option>
+        <option>Hostel</option>
+        <option>Infrastructure</option>
+        <option>Finance</option>
+        <option>Disciplinary</option>
+        <option>Other</option>
+      </select>
+
+      <h3>Your Complaints</h3>
+      <div id="complaintList"></div>
+    </div>
+
+    <!-- COMPLAINT FORM -->
+    <div id="complaintFormPage" class="hidden">
+      <h2>Submit Complaint</h2>
+      <label>Category: 
+        <select id="category">
+          <option>Academic</option>
+          <option>Hostel</option>
+          <option>Infrastructure</option>
+          <option>Finance</option>
+          <option>Disciplinary</option>
+          <option>Other</option>
+        </select>
+      </label><br><br>
+      <label>Description:<br><textarea id="description"></textarea></label><br><br>
+      <label>Email: <input id="email"></label><br><br>
+      <label>Priority: 
+        <select id="priority">
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
+        </select>
+      </label><br><br>
+      <label><input type="checkbox" id="anonCheck"> Confirm Anonymity</label><br><br>
+      <button onclick="submitComplaint()">Submit</button>
+      <button onclick="showPage('dashboard')">Cancel</button>
+    </div>
+
+    <!-- SUPPORT PAGE -->
+    <div id="supportPage" class="hidden">
+      <h2>Support / Help / Contact</h2>
+      <p>Email: support@sealuniversity.edu</p>
+      <p>Phone: +91-1234567890</p>
+      <p>Office: Student Affairs, Main Building</p>
+    </div>
   </div>
 
-  <div class="filter-box">
-    <label>Filter by Category:</label>
-    <select id="userFilter" onchange="renderUser()">
-      <option value="All">All</option>
-      <option value="Academic">Academic</option>
-      <option value="Facilities">Facilities</option>
-      <option value="Administration">Administration</option>
-      <option value="Harassment">Harassment</option>
-      <option value="Other">Other</option>
-    </select>
-  </div>
+  <script>
+    let complaints = JSON.parse(localStorage.getItem("complaints")) || [];
+    let loggedIn = false;
+    let isAdmin = false;
 
-  <div id="userComplaints"></div>
-</div>
+    function showPage(pageId) {
+      // Prevent direct dashboard access without login
+      if (pageId === "dashboard" && !loggedIn) {
+        alert("Please login first.");
+        pageId = "loginPage";
+      }
 
-<!-- COMPLAINT FORM -->
-<div id="complaintForm" class="hidden box">
-  <h3>New Complaint</h3>
-  <label>Category</label>
-  <select id="compCategory">
-    <option>Academic</option>
-    <option>Facilities</option>
-    <option>Administration</option>
-    <option>Harassment</option>
-    <option>Other</option>
-  </select>
-  <label>Description</label>
-  <textarea id="compDesc" rows="4"></textarea>
-  <label>Uploads (not functional in demo)</label>
-  <input type="file">
-  <label>Priority</label>
-  <select id="compPriority">
-    <option>Low</option>
-    <option>Medium</option>
-    <option>High</option>
-  </select>
-  <label>
-    <input type="checkbox" id="anonCheck"> Confirm Anonymity
-  </label><br><br>
-  <button class="btn" onclick="submitComplaint()">Submit</button>
-  <button class="btn" onclick="cancelComplaint()">Cancel</button>
-</div>
+      document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
+      document.getElementById(pageId).classList.remove('hidden');
 
-<!-- ADMIN DASHBOARD -->
-<div id="adminPage" class="hidden box">
-  <h2>Admin Dashboard</h2>
-
-  <div class="filter-box">
-    <label>Filter by Category:</label>
-    <select id="adminFilter" onchange="renderAdmin()">
-      <option value="All">All</option>
-      <option value="Academic">Academic</option>
-      <option value="Facilities">Facilities</option>
-      <option value="Administration">Administration</option>
-      <option value="Harassment">Harassment</option>
-      <option value="Other">Other</option>
-    </select>
-  </div>
-
-  <div id="allComplaints"></div>
-</div>
-
-<!-- SUPPORT/HELP/CONTACT -->
-<div id="supportBox" class="hidden box">
-  <h3>Support</h3>
-  <p>Need help using the portal? Reach out to our student grievance cell. We will guide you through the process.</p>
-</div>
-
-<div id="contactBox" class="hidden box">
-  <h3>Contact</h3>
-  <p>Email: grievance@sealuniv.edu</p>
-  <p>Phone: +91-12345-67890</p>
-</div>
-
-<div id="helpBox" class="hidden box">
-  <h3>Help</h3>
-  <ul>
-    <li>Login as User to submit and track complaints.</li>
-    <li>Login as Admin to review all complaints and update their statuses.</li>
-    <li>Complaints automatically expire after 7 days if not addressed.</li>
-    <li>Use the category filters to narrow down specific issues.</li>
-  </ul>
-</div>
-
-<footer>
-  <p>&copy; Seal University Grievance Portal - Prototype</p>
-</footer>
-
-<script>
-  let complaints = [];
-  let isAdmin = false;
-  let userEmail = "";
-
-  function login(adminMode) {
-    userEmail = document.getElementById('loginEmail').value || "noemail@sealuniv.edu";
-    isAdmin = adminMode;
-
-    document.getElementById('loginPage').classList.add('hidden');
-    if (adminMode) {
-      document.getElementById('adminPage').classList.remove('hidden');
-      renderAdmin();
-    } else {
-      document.getElementById('userPage').classList.remove('hidden');
-      renderUser();
+      if (pageId === "dashboard") renderComplaints();
     }
-  }
 
-  function newComplaint() {
-    document.getElementById('userPage').classList.add('hidden');
-    document.getElementById('complaintForm').classList.remove('hidden');
-  }
+    function login(adminMode) {
+      let user = document.getElementById("username").value;
+      if (!user) { alert("Enter name to continue."); return; }
 
-  function cancelComplaint() {
-    document.getElementById('complaintForm').classList.add('hidden');
-    document.getElementById('userPage').classList.remove('hidden');
-  }
+      loggedIn = true;
+      isAdmin = adminMode;
 
-  function submitComplaint() {
-    const id = "CMP" + (complaints.length + 1);
-    const createdAt = new Date();
-    const expiresAt = new Date(createdAt.getTime() + 7*24*60*60*1000); // 7 days
-    complaints.push({
-      id,
-      category: document.getElementById('compCategory').value,
-      desc: document.getElementById('compDesc').value,
-      priority: document.getElementById('compPriority').value,
-      status: "Pending",
-      anon: document.getElementById('anonCheck').checked,
-      email: userEmail,
-      createdAt,
-      expiresAt
-    });
-    alert("Your email " + userEmail + " will receive a confirmation mail regarding this submission.");
-    document.getElementById('complaintForm').classList.add('hidden');
-    document.getElementById('userPage').classList.remove('hidden');
-    renderUser();
-  }
+      if (isAdmin) {
+        alert("Admin login successful. (Prototype)");
+      } else {
+        alert("Login successful. Welcome " + user);
+      }
 
-  function removeComplaint() {
-    if (complaints.length === 0) {
-      alert("No complaints to remove!");
-      return;
+      showPage("dashboard");
     }
-    complaints.pop();
-    renderUser();
-  }
 
-  function renderUser() {
-    const div = document.getElementById('userComplaints');
-    div.innerHTML = "";
-    let filter = document.getElementById('userFilter').value;
-    complaints.forEach(c => {
-      if (filter !== "All" && c.category !== filter) return;
-      const now = new Date();
-      const expired = now > c.expiresAt;
-      div.innerHTML += `
-        <div class="box">
-          <strong>${c.id}</strong> (${c.category}) - Priority: ${c.priority}<br>
-          ${c.desc}<br>
-          ${expired ? `<span class="expired">Expired</span>` : `Expires: ${c.expiresAt.toDateString()}`}<br>
-          <div class="progress">
-            <div class="step ${c.status=='Pending'?'active':''}">Pending</div>
-            <div class="step ${c.status=='In Progress'?'active':''}">In Progress</div>
-            <div class="step ${c.status=='Resolved'?'active':''}">Resolved</div>
-          </div>
-        </div>
-      `;
-    });
-  }
-
-  function renderAdmin() {
-    const div = document.getElementById('allComplaints');
-    div.innerHTML = "";
-    let filter = document.getElementById('adminFilter').value;
-    if (complaints.length === 0) {
-      div.innerHTML = "<p>No complaints submitted yet.</p>";
+    function logout() {
+      loggedIn = false;
+      isAdmin = false;
+      alert("You have been logged out.");
+      showPage("loginPage");
     }
-    complaints.forEach((c,i) => {
-      if (filter !== "All" && c.category !== filter) return;
-      const now = new Date();
-      const expired = now > c.expiresAt;
-      div.innerHTML += `
-        <div class="box">
-          <strong>${c.id}</strong> (${c.category}) - Priority: ${c.priority}<br>
-          ${c.desc}<br>
-          ${expired ? `<span class="expired">Expired</span>` : `Expires: ${c.expiresAt.toDateString()}`}<br>
-          <em>Anon: ${c.anon}</em><br>
-          <button class="btn" onclick="updateStatus(${i}, 'Pending')">Pending</button>
-          <button class="btn" onclick="updateStatus(${i}, 'In Progress')">In Progress</button>
-          <button class="btn" onclick="updateStatus(${i}, 'Resolved')">Resolved</button>
-        </div>
-      `;
-    });
-  }
 
-  function updateStatus(i, newStatus) {
-    complaints[i].status = newStatus;
-    renderAdmin();
-    renderUser();
-  }
+    function addComplaintForm() { showPage("complaintFormPage"); }
 
-  function showSupport() {
-    hideAll();
-    document.getElementById('supportBox').classList.remove('hidden');
-  }
+    function submitComplaint() {
+      let category = document.getElementById("category").value;
+      let description = document.getElementById("description").value;
+      let email = document.getElementById("email").value;
+      let priority = document.getElementById("priority").value;
+      let anon = document.getElementById("anonCheck").checked;
 
-  function showContact() {
-    hideAll();
-    document.getElementById('contactBox').classList.remove('hidden');
-  }
+      if (!description) { alert("Fill in the description."); return; }
 
-  function showHelp() {
-    hideAll();
-    document.getElementById('helpBox').classList.remove('hidden');
-  }
+      let complaint = {
+        id: "C" + Date.now(),
+        category, description, email, priority,
+        anon, status: "Pending"
+      };
 
-  function hideAll() {
-    document.getElementById('loginPage').classList.add('hidden');
-    document.getElementById('userPage').classList.add('hidden');
-    document.getElementById('complaintForm').classList.add('hidden');
-    document.getElementById('adminPage').classList.add('hidden');
-    document.getElementById('supportBox').classList.add('hidden');
-    document.getElementById('contactBox').classList.add('hidden');
-    document.getElementById('helpBox').classList.add('hidden');
-  }
-</script>
+      complaints.push(complaint);
+      localStorage.setItem("complaints", JSON.stringify(complaints));
+
+      alert("Your email " + email + " will receive a confirmation mail regarding this submission (mock).");
+      showPage("dashboard");
+    }
+
+    function renderComplaints() {
+      let list = document.getElementById("complaintList");
+      list.innerHTML = "";
+      if (complaints.length === 0) {
+        list.innerHTML = "<p>No complaints submitted yet.</p>";
+        return;
+      }
+
+      let filter = document.getElementById("filterCategory").value;
+      complaints
+        .filter(c => filter === "all" || c.category === filter)
+        .forEach(c => {
+          let div = document.createElement("div");
+          div.className = "complaint";
+          div.innerHTML = `
+            <b>ID:</b> ${c.id} <br>
+            <b>Category:</b> ${c.category} <br>
+            <b>Description:</b> ${c.description} <br>
+            <b>Priority:</b> ${c.priority} <br>
+            <b>Status:</b> ${c.status} <br>
+            <div class="progress">[ ${c.status === "Pending" ? "🔴 Pending" : "🟢 Resolved"} ]</div>
+          `;
+          list.appendChild(div);
+        });
+    }
+
+    function removeComplaint() {
+      if (complaints.length === 0) { alert("No complaints to remove."); return; }
+      complaints.pop();
+      localStorage.setItem("complaints", JSON.stringify(complaints));
+      renderComplaints();
+    }
+
+    // Default page
+    showPage("loginPage");
+  </script>
 
 </body>
 </html>
+
 
 
 
