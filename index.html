@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Seal University Grievance Portal</title>
+  <style>
+    body { font-family: monospace; background: #f9f9f9; color: #000; margin: 20px; }
+    h1, h2, h3 { text-align: center; }
+    .hidden { display: none; }
+    .box { border: 1px solid #000; padding: 15px; margin: 10px auto; max-width: 600px; background: #fff; }
+    .btn { padding: 8px 12px; margin: 5px; cursor: pointer; border: 1px solid #000; background: #eee; }
+    .big-btn { font-size: 24px; font-weight: bold; width: 50px; height: 50px; text-align: center; }
+    .progress { display: flex; justify-content: space-between; margin-top: 10px; }
+    .step { flex: 1; text-align: center; border-top: 2px solid #aaa; padding-top: 5px; font-size: 12px; }
+    .active { border-top: 2px solid #000; font-weight: bold; }
+    textarea, input, select { width: 100%; margin: 5px 0; padding: 5px; }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN PAGE -->
+  <div id="loginPage" class="box">
+    <h1>Seal University</h1>
+    <h2>Grievance Redressal Portal</h2>
+    <p><em>"All issues reported on this portal are recorded anonymously and we will work to the best of our ability to make quick work of this."</em></p>
+    
+    <h3>Login</h3>
+    <input type="text" id="loginName" placeholder="Enter Name"><br>
+    <input type="password" id="loginPass" placeholder="Enter Password"><br>
+    <input type="email" id="loginEmail" placeholder="Enter Email (for confirmation)">
+    <br><br>
+    <button class="btn" onclick="login(false)">Login as User</button>
+    <button class="btn" onclick="login(true)">Login as Admin</button>
+  </div>
+
+  <!-- USER DASHBOARD  -->
+  <div id="userPage" class="hidden box">
+    <h2>User Dashboard 
+    *PRESS + TO ADD A REPORT 
+    PRESS - TO REMOVE A REPORT* </h2>
+    <div>
+      <button class="big-btn" onclick="newComplaint()">+</button>
+      <button class="big-btn" onclick="removeComplaint()">-</button>
+    </div>
+    <div id="userComplaints"></div>
+  </div>
+
+  <!-- COMPLAINT FORM -->
+  <div id="complaintForm" class="hidden box">
+    <h3>New Complaint</h3>
+    <label>Category</label>
+    <select id="compCategory">
+      <option>Academic</option>
+      <option>Facilities</option>
+      <option>Administration</option>
+      <option>Harassment</option>
+      <option>Other</option>
+    </select>
+    <label>Description</label>
+    <textarea id="compDesc" rows="4"></textarea>
+    <label>Uploads (not functional in demo)</label>
+    <input type="file">
+    <label>Priority</label>
+    <select id="compPriority">
+      <option>Low</option>
+      <option>Medium</option>
+      <option>High</option>
+    </select>
+    <label>
+      <input type="checkbox" id="anonCheck"> Confirm Anonymity
+    </label><br><br>
+    <button class="btn" onclick="submitComplaint()">Submit</button>
+    <button class="btn" onclick="cancelComplaint()">Cancel</button>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="adminPage" class="hidden box">
+    <h2>Admin Dashboard</h2>
+    <div id="allComplaints"></div>
+  </div>
+
+<script>
+  let complaints = [];
+  let isAdmin = false;
+  let userEmail = "";
+
+  function login(adminMode) {
+    const name = document.getElementById('loginName').value;
+    userEmail = document.getElementById('loginEmail').value || "noemail@sealuniv.edu";
+    isAdmin = adminMode;
+
+    document.getElementById('loginPage').classList.add('hidden');
+    if (adminMode) {
+      document.getElementById('adminPage').classList.remove('hidden');
+      renderAdmin();
+    } else {
+      document.getElementById('userPage').classList.remove('hidden');
+      renderUser();
+    }
+  }
+
+  function newComplaint() {
+    document.getElementById('userPage').classList.add('hidden');
+    document.getElementById('complaintForm').classList.remove('hidden');
+  }
+
+  function cancelComplaint() {
+    document.getElementById('complaintForm').classList.add('hidden');
+    document.getElementById('userPage').classList.remove('hidden');
+  }
+
+  function submitComplaint() {
+    const id = "CMP" + (complaints.length + 1);
+    complaints.push({
+      id,
+      category: document.getElementById('compCategory').value,
+      desc: document.getElementById('compDesc').value,
+      priority: document.getElementById('compPriority').value,
+      status: "Pending",
+      anon: document.getElementById('anonCheck').checked,
+      email: userEmail
+    });
+    alert("Your email " + userEmail + " will receive a confirmation mail regarding this submission.");
+    document.getElementById('complaintForm').classList.add('hidden');
+    document.getElementById('userPage').classList.remove('hidden');
+    renderUser();
+  }
+
+  function removeComplaint() {
+    if (complaints.length === 0) {
+      alert("No complaints to remove!");
+      return;
+    }
+    complaints.pop();
+    renderUser();
+  }
+
+  function renderUser() {
+    const div = document.getElementById('userComplaints');
+    div.innerHTML = "";
+    complaints.forEach(c => {
+      div.innerHTML += `
+        <div class="box">
+          <strong>${c.id}</strong> (${c.category}) - Priority: ${c.priority}<br>
+          ${c.desc}<br>
+          <div class="progress">
+            <div class="step ${c.status=='Pending'?'active':''}">Pending</div>
+            <div class="step ${c.status=='In Progress'?'active':''}">In Progress</div>
+            <div class="step ${c.status=='Resolved'?'active':''}">Resolved</div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function renderAdmin() {
+    const div = document.getElementById('allComplaints');
+    div.innerHTML = "";
+    if (complaints.length === 0) {
+      div.innerHTML = "<p>No complaints submitted yet.</p>";
+    }
+    complaints.forEach((c,i) => {
+      div.innerHTML += `
+        <div class="box">
+          <strong>${c.id}</strong> (${c.category}) - Priority: ${c.priority}<br>
+          ${c.desc}<br>
+          <em>Anon: ${c.anon}</em><br>
+          <button class="btn" onclick="updateStatus(${i}, 'Pending')">Pending</button>
+          <button class="btn" onclick="updateStatus(${i}, 'In Progress')">In Progress</button>
+          <button class="btn" onclick="updateStatus(${i}, 'Resolved')">Resolved</button>
+        </div>
+      `;
+    });
+  }
+
+  function updateStatus(i, newStatus) {
+    complaints[i].status = newStatus;
+    renderAdmin();
+    renderUser();
+  }
+</script>
+
+</body>
+</html>
